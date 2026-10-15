@@ -31,6 +31,8 @@ $$("[data-count]").forEach(el=>cio.observe(el));
    ▶ CHURCH MEDIA TEAM: replace each `youtubeId` with your real YouTube video IDs
    (the 11 characters after "v=" in a YouTube link) and update titles/dates. */
 const VIDEOS=[
+  {youtubeId:"bniiQpJZb9U", title:"Uplifting Generations — Revival Conference 2026 (Psalm 78:4)", meta:"Pastors Gladstone & Cheryl Johnson • Aug 2026", dur:"Watch", thumb:"assets/images/conference/conference-tent-tema.jpg",
+   desc:"Highlights from the Youth Conference in Tema Village, where 29 people were baptised."},
   {youtubeId:"dy9nwe9_xzw", title:"12th Anniversary Thanksgiving Service — “Not to us, O Lord” (Psalm 115:1)", meta:"Pastor Agatha Christine Idusso • 30 Aug 2025", dur:"2:14:20", thumb:"assets/images/real/anniversary-stage.jpg",
    desc:"The climax of 12 years of God's faithfulness — worship, testimonies and thanksgiving."},
   {youtubeId:"dy9nwe9_xzw", title:"Ministering Under the Trees — Tema Village, Kikyusa", meta:"Outdoor Service • Kikyusa–Tema", dur:"1:48:05", thumb:"assets/images/real/tema-trees.jpg",
@@ -72,7 +74,7 @@ function openLight(img){
   lightCap.textContent=(fig&&$("figcaption",fig)?.textContent)||img.alt||"";
   light.classList.add("open"); light.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden";
 }
-$$("#annivGallery figure").forEach(f=>f.addEventListener("click",()=>openLight($("img",f))));
+$$(".gallery-grid figure").forEach(f=>f.addEventListener("click",()=>openLight($("img",f))));
 $$(".zoomable").forEach(img=>img.addEventListener("click",e=>{e.stopPropagation();openLight(img);}));
 function closeLight(){light.classList.remove("open");light.setAttribute("aria-hidden","true");document.body.style.overflow="";}
 $("#lightClose").addEventListener("click",closeLight);

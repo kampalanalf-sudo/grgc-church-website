@@ -2,15 +2,17 @@
 
 Official website for **Gateway Revival Glory Church & Ministries**, Kampala, Uganda —
 led by Vision Bearer **Pastor Agatha Christine Idusso** (“Mama Agatha”).
-3 branches — City Church: 4th Floor, Corner House, Nakasero, Entebbe Road,
-**Tema (Kikyusa–Tema)** and **Kayabwe (Masaka Road)**.
+2 branches — City Church: 4th Floor, Corner House, Nakasero, Entebbe Road,
+and **Tema (Kikyusa–Tema)**.
 
 All stories, photos and testimonies are taken from the church's **12th Anniversary
 magazine** (*“gateway recovered 2025 30th august.pdf”*, via Google Drive):
 theme *“Not to us, O Lord…” (Psalm 115:1)*, launched 17 Aug 2013.
 
 ## Features
-- ★ Main feature: **12th Anniversary Celebrations (30 Aug 2025)** with real photo gallery + lightbox
+- ★ Main feature: **Uplifting Generations Youth Conference (Aug 2026)** — 29 baptised in Tema Village, photo gallery + lightbox
+- **13th Anniversary Celebration & Thanksgiving** (with a look back at the 12th Anniversary)
+- **Pastors Gladstone & Cheryl Johnson** (ProsperLife Network) — conference visit & Kikyusa–Tema clean water project
 - Our Journey timeline (1989 → 2025), Vision / Mission / Goal
 - Branches + City HQ banner with maps & directions
 - **Word from the Vision Bearer** (real message & photo)
@@ -36,7 +38,7 @@ cd /home/user/iuea && python3 -m http.server 8080
 | Add sermon videos (YouTube IDs) | `js/main.js` → `VIDEOS` array |
 | Bank / MoMo details | `index.html` → `#give` section |
 | Branch info & service times | `index.html` → `#branches` |
-| Photos | `assets/images/real/` (from anniversary magazine) |
+| Photos | `assets/images/real/` (anniversary magazine), `assets/images/conference/` (2026 conference) |
 | Styling / colours | `css/styles.css` |
 
 ## Deploy

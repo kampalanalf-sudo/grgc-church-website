@@ -129,6 +129,20 @@ code{background:#eee9dc;padding:.1em .4em;border-radius:6px;font-size:.85em}
 .gallery-grid figure:hover{transform:translateY(-4px)}
 .gallery-grid img{height:170px;width:100%;object-fit:cover}
 @media(max-width:880px){.gallery-grid{grid-template-columns:repeat(2,1fr)}}
+/* conference + light anniversary + johnsons */
+.conf-dates{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin:0 auto 2rem;max-width:860px}
+.conf-dates div{background:rgba(255,255,255,.08);border:1px solid rgba(232,199,102,.4);border-radius:12px;padding:.8rem;text-align:center}
+.conf-dates strong{display:block;color:var(--gold-light);font-family:var(--font-head);font-size:1.25rem}
+.conf-dates span{font-size:.82rem;color:#e8e2f5}
+@media(max-width:640px){.conf-dates{grid-template-columns:1fr}}
+.anniv-light .anniv-recap h3{color:var(--purple-900)}
+.anniv-light .anniv-recap p{color:var(--ink)}
+.anniv-light .anniv-stats div{background:#fff;border-color:rgba(201,162,39,.45)}
+.anniv-light .anniv-stats strong{color:var(--gold-dark)}
+.anniv-light .anniv-stats span{color:var(--muted)}
+.anniv-light .gallery-grid{margin-bottom:1rem}
+.johnsons-grid{align-items:center}
+.johnsons-grid h3{margin-top:1rem}
 
 /* pastor */
 .pastor-grid{align-items:center}
@@ -151,6 +165,7 @@ code{background:#eee9dc;padding:.1em .4em;border-radius:6px;font-size:.85em}
 @media(max-width:960px){.branch-grid{grid-template-columns:1fr;max-width:560px;margin-inline:auto}}
 .branch-card{background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;position:relative}
 .branch-card img{height:210px;width:100%;object-fit:cover}
+.branch-grid.single{grid-template-columns:1fr;max-width:620px}
 .branch-card.featured-branch{outline:3px solid var(--gold)}
 .branch-tag{position:absolute;top:.8rem;left:.8rem;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:#241a05;font-size:.72rem;font-weight:800;padding:.3rem .8rem;border-radius:999px;letter-spacing:.03em}
 .branch-body{padding:1.4rem;display:flex;flex-direction:column;gap:.5rem;flex:1}
