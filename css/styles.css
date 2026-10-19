@@ -354,3 +354,22 @@ code{background:#eee9dc;padding:.1em .4em;border-radius:6px;font-size:.85em}
 .spotlight.reverse>*{direction:ltr}
 .m-photo{width:100%;height:150px;object-fit:cover;border-radius:10px;margin-bottom:.7rem}
 .branch-extra{width:100%;height:170px;object-fit:cover;border-radius:10px;margin:.4rem 0}
+
+/* Keep each testimony and its correctly identified photos together. */
+#gospel-of-actions{margin-top:3rem}
+.story-card{grid-template-columns:minmax(0,1fr)}
+.story-card .story-photos{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));align-content:start;align-items:start;gap:1rem;padding:1rem}
+.story-card .story-photos img{display:block;width:100%;height:auto;min-height:0;object-fit:contain}
+.story-card .story-photos figcaption{position:static;border-radius:0;background:transparent;color:#ffe9a8;padding:.6rem .25rem;font-size:.85rem;line-height:1.5}
+
+/* Featured 13th Anniversary service — purple and gold thanksgiving theme. */
+.anniversary-broadcast{margin:2rem 0 3rem;background:radial-gradient(ellipse at top right,#4b3396,var(--purple-900) 70%);border:1px solid var(--gold);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);scroll-margin-top:100px;color:var(--cream)}
+.anniversary-broadcast-heading{padding:2rem;text-align:center}
+.anniversary-broadcast-heading h3{color:#fff;font-size:clamp(1.6rem,3.5vw,2.5rem);margin:1rem 0}
+.anniversary-broadcast-heading h3 em{color:var(--gold-light)}
+.anniversary-broadcast-heading p{max-width:650px;margin:auto;color:#eee6ff}
+.anniversary-broadcast .video-player{width:100%;border-top:1px solid rgba(232,199,102,.4);border-bottom:1px solid rgba(232,199,102,.4)}
+.anniversary-broadcast .video-player iframe{display:block}
+.anniversary-broadcast-footer{display:flex;align-items:center;justify-content:space-between;gap:1.2rem;padding:1.5rem 2rem}
+.anniversary-broadcast-footer p{color:var(--gold-light)}
+@media(max-width:620px){.anniversary-broadcast-heading{padding:1.5rem 1rem}.anniversary-broadcast-footer{flex-direction:column;text-align:center;padding:1.5rem 1rem}}
