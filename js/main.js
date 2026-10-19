@@ -27,39 +27,41 @@ const cio=new IntersectionObserver(es=>es.forEach(e=>{
 }),{threshold:.5});
 $$("[data-count]").forEach(el=>cio.observe(el));
 
-/* ═════════ VIDEOS ═════════
-   ▶ CHURCH MEDIA TEAM: replace each `youtubeId` with your real YouTube video IDs
-   (the 11 characters after "v=" in a YouTube link) and update titles/dates. */
+/* Selected recordings, not a full channel inventory.
+   Add distinct YouTube IDs and their actual titles here; never reuse placeholder IDs. */
 const VIDEOS=[
+  {youtubeId:"hLjjEnNIjh0", title:"13th Anniversary — Celebrations & Service", meta:"Gateway Revival Glory Church • 13 years of God’s faithfulness", dur:"Watch service", thumb:"assets/images/real/anniversary-stage.jpg",
+   desc:"Watch the GRGC 13th Anniversary celebrations and service."},
   {youtubeId:"bniiQpJZb9U", title:"Uplifting Generations — Revival Conference 2026 (Psalm 78:4)", meta:"Pastors Gladstone & Cheryl Johnson • Aug 2026", dur:"Watch", thumb:"assets/images/conference/conference-tent-tema.jpg",
-   desc:"Highlights from the Youth Conference in Tema Village, where 29 people were baptised."},
+   desc:"Highlights from the Youth Conference in Tema Village, where 26 people were baptised."},
   {youtubeId:"dy9nwe9_xzw", title:"12th Anniversary Thanksgiving Service — “Not to us, O Lord” (Psalm 115:1)", meta:"Pastor Agatha Christine Idusso • 30 Aug 2025", dur:"2:14:20", thumb:"assets/images/real/anniversary-stage.jpg",
-   desc:"The climax of 12 years of God's faithfulness — worship, testimonies and thanksgiving."},
-  {youtubeId:"dy9nwe9_xzw", title:"Ministering Under the Trees — Tema Village, Kikyusa", meta:"Outdoor Service • Kikyusa–Tema", dur:"1:48:05", thumb:"assets/images/real/tema-trees.jpg",
-   desc:"The Word preached where the church began — under the eucalyptus trees."},
-  {youtubeId:"dy9nwe9_xzw", title:"Night Crusade — Tema Village", meta:"Crusade • Tema Branch", dur:"2:02:44", thumb:"assets/images/real/night-crusade.jpg",
-   desc:"Souls won, hearts turned back to Jesus — the first of its kind in the area."},
-  {youtubeId:"dy9nwe9_xzw", title:"Worship Team Ministration — Anniversary Celebrations", meta:"GRGC Worship Team • 30 Aug 2025", dur:"48:10", thumb:"assets/images/real/worship-team.jpg",
-   desc:"Songs of thanksgiving from our anniversary choir and worship team."},
-  {youtubeId:"dy9nwe9_xzw", title:"Laying the Foundation Stone — Kikyusa Church", meta:"Building Project • Kikyusa", dur:"32:18", thumb:"assets/images/real/foundation-stone.jpg",
-   desc:"A new altar rises in Kikyusa — foundation stone laid in faith."},
-  {youtubeId:"dy9nwe9_xzw", title:"Gayaza Children's Home — From Then to Now", meta:"GRGC Projects • Documentary", dur:"12:40", thumb:"assets/images/real/gayaza-home.jpg",
-   desc:"From construction site to a loving home for teenagers — see what God has done."}
+   desc:"The climax of 12 years of God's faithfulness — worship, testimonies and thanksgiving."}
 ];
 const grid=$("#videoGrid"), modal=$("#videoModal"), mFrame=$("#modalFrame"), mTitle=$("#modalTitle");
-VIDEOS.forEach((v,i)=>{
+VIDEOS.forEach(v=>{
+  const card=document.createElement("article");
+  card.className="video-library-item";
   const b=document.createElement("button");
   b.className="video-card"; b.type="button";
   b.innerHTML=`<span class="video-thumb" style="background-image:url('${v.thumb}')">
       <span class="play"><span>▶</span></span><span class="dur">${v.dur}</span></span>
     <span class="video-meta"><h3>${v.title}</h3><p>${v.meta}</p></span>`;
   b.addEventListener("click",()=>{
-    if(i===0){document.querySelector(".video-feature").scrollIntoView({behavior:"smooth",block:"center"});return;}
+    if(v.youtubeId==="hLjjEnNIjh0"){document.querySelector("#anniversary-video").scrollIntoView({behavior:"smooth",block:"start"});return;}
+    if(v.youtubeId==="bniiQpJZb9U"){document.querySelector(".video-feature").scrollIntoView({behavior:"smooth",block:"center"});return;}
     mTitle.textContent=v.title;
     mFrame.src=`https://www.youtube-nocookie.com/embed/${v.youtubeId}?rel=0&autoplay=1`;
     modal.classList.add("open"); modal.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden";
   });
-  grid.appendChild(b);
+  card.appendChild(b);
+  const link=document.createElement("a");
+  link.className="video-watch-link";
+  link.href=`https://www.youtube.com/watch?v=${v.youtubeId}`;
+  link.target="_blank"; link.rel="noopener";
+  link.textContent="Watch on YouTube ↗";
+  link.setAttribute("aria-label",`Watch ${v.title} on YouTube (opens in a new tab)`);
+  card.appendChild(link);
+  grid.appendChild(card);
 });
 function closeModal(){modal.classList.remove("open");modal.setAttribute("aria-hidden","true");mFrame.src="";document.body.style.overflow="";}
 $("#modalClose").addEventListener("click",closeModal);
