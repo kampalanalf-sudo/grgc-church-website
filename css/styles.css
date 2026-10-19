@@ -373,3 +373,16 @@ code{background:#eee9dc;padding:.1em .4em;border-radius:6px;font-size:.85em}
 .anniversary-broadcast-footer{display:flex;align-items:center;justify-content:space-between;gap:1.2rem;padding:1.5rem 2rem}
 .anniversary-broadcast-footer p{color:var(--gold-light)}
 @media(max-width:620px){.anniversary-broadcast-heading{padding:1.5rem 1rem}.anniversary-broadcast-footer{flex-direction:column;text-align:center;padding:1.5rem 1rem}}
+
+/* Direct access to the church channel and individual recordings. */
+.channel-directory{display:flex;align-items:center;justify-content:space-between;gap:2rem;margin:2rem 0;padding:2rem;border:1px solid var(--gold);border-radius:var(--radius);background:linear-gradient(120deg,var(--purple-900),var(--purple-700));color:var(--cream)}
+.channel-directory h3{color:#fff;font-size:1.6rem}
+.channel-directory .eyebrow,.channel-handle{color:var(--gold-light)}
+.channel-directory .btn-row{flex-shrink:0;flex-wrap:wrap}
+.channel-handle{display:inline-block;margin-top:.6rem;overflow-wrap:anywhere}
+.video-library-heading{margin:1.5rem 0 1rem}
+.video-library-item{display:flex;flex-direction:column;border-radius:14px;background:#fff;box-shadow:var(--shadow-sm);overflow:hidden}
+.video-library-item .video-card{box-shadow:none;flex:1}
+.video-watch-link{display:block;padding:.8rem 1rem;border-top:1px solid var(--alt-bg);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.video-library-item a:focus-visible,.channel-directory a:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+@media(max-width:960px){.channel-directory{flex-direction:column;align-items:flex-start;padding:1.5rem}.channel-directory .btn-row{flex-shrink:1}}
