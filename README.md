@@ -10,7 +10,7 @@ magazine** (*“gateway recovered 2025 30th august.pdf”*, via Google Drive):
 theme *“Not to us, O Lord…” (Psalm 115:1)*, launched 17 Aug 2013.
 
 ## Features
-- ★ Main feature: **Uplifting Generations Youth Conference (Aug 2026)** — 29 baptised in Tema Village, photo gallery + lightbox
+- ★ Main feature: **Uplifting Generations Youth Conference (Aug 2026)** — 26 baptised in Tema Village, photo gallery + lightbox
 - **13th Anniversary Celebration & Thanksgiving** (with a look back at the 12th Anniversary)
 - **Pastors Gladstone & Cheryl Johnson** (ProsperLife Network) — conference visit & Kikyusa–Tema clean water project
 - Our Journey timeline (1989 → 2025), Vision / Mission / Goal
