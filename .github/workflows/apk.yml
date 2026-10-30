@@ -97,8 +97,14 @@ jobs:
           test -f "$APK"
           BT=$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)
           "$ANDROID_HOME/build-tools/$BT/apksigner" verify --print-certs "$APK" | head -3
+          echo "== APK contents =="
+          unzip -l "$APK"
+          # A installable app must contain compiled code and the binary manifest.
+          unzip -p "$APK" classes.dex > /dev/null
+          unzip -p "$APK" AndroidManifest.xml > /dev/null
           cp "$APK" GRGC-Phone-Tracker-v1.0.apk
           ls -la GRGC-Phone-Tracker-v1.0.apk
+          sha256sum GRGC-Phone-Tracker-v1.0.apk
           echo "APK_FILE=GRGC-Phone-Tracker-v1.0.apk" >> "$GITHUB_ENV"
 
       - name: Publish GitHub Release
