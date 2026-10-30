@@ -1,0 +1,7 @@
+.gradle/
+build/
+local.properties
+signing.keystore
+signing.pass
+*.iml
+.idea/

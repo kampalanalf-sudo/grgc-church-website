@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher foreground: location pin on a gold disc (matches the web app icon). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- gold disc -->
+    <path
+        android:fillColor="@color/ic_launcher_gold"
+        android:pathData="M24,54 a30,30 0 1,0 60,0 a30,30 0 1,0 -60,0" />
+
+    <!-- white pin -->
+    <path
+        android:fillColor="@color/ic_launcher_pin"
+        android:pathData="M54,36 c-8,0 -14.5,6.5 -14.5,14.5 c0,11 14.5,27 14.5,27 s14.5,-16 14.5,-27 C68.5,42.5 62,36 54,36 z" />
+
+    <!-- pin hole -->
+    <path
+        android:fillColor="@color/ic_launcher_gold"
+        android:pathData="M54,45 a5.5,5.5 0 1,0 0.1,0 z" />
+</vector>

@@ -1,0 +1,122 @@
+# Builds, signs and publishes the Phone Tracker Android APK.
+#
+# Signing: uses the KEYSTORE_BASE64 repo secret when present (recommended
+# long-term). Otherwise it generates a keystore and caches it via the
+# actions cache so the signature stays stable between runs.
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths: ['phone-tracker/android/**']
+  push:
+    branches: [main]
+    paths: ['phone-tracker/android/**']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+
+      - name: Restore signing keystore
+        id: ks-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            phone-tracker/android/signing.keystore
+            phone-tracker/android/signing.pass
+          key: apk-signing-v1
+
+      - name: Prepare signing keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.KEYSTORE_PASSWORD }}
+          K_ALIAS: ${{ secrets.KEY_ALIAS }}
+          K_PASS: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          cd phone-tracker/android
+          if [ -n "${KEYSTORE_B64:-}" ]; then
+            echo "Using keystore from repo secrets"
+            echo "$KEYSTORE_B64" | base64 -d > signing.keystore
+            printf '%s\n%s\n' "$KS_PASS" "${K_PASS:-$KS_PASS}" > signing.pass
+            echo "KEY_ALIAS=${K_ALIAS:-grgc-tracker}" >> "$GITHUB_ENV"
+          else
+            echo "No signing secret — using generated (cached) keystore"
+            if [ ! -f signing.keystore ]; then
+              PASS=$(head -c 32 /dev/urandom | base64 | tr -dc 'A-Za-z0-9' | cut -c1-24)
+              keytool -genkeypair -keystore signing.keystore -alias grgc-tracker \
+                -keyalg RSA -keysize 2048 -validity 10950 \
+                -storepass "$PASS" -keypass "$PASS" \
+                -dname "CN=GRGC Phone Tracker, O=GRGC"
+              printf '%s\n%s\n' "$PASS" "$PASS" > signing.pass
+              echo "Generated a new signing keystore"
+            else
+              echo "Restored cached keystore"
+            fi
+            echo "KEY_ALIAS=grgc-tracker" >> "$GITHUB_ENV"
+          fi
+          echo "KEYSTORE_PASSWORD=$(sed -n 1p signing.pass)" >> "$GITHUB_ENV"
+          echo "KEY_PASSWORD=$(sed -n 2p signing.pass)" >> "$GITHUB_ENV"
+          echo "KEYSTORE_PATH=$PWD/signing.keystore" >> "$GITHUB_ENV"
+
+      - name: Save signing keystore
+        if: steps.ks-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            phone-tracker/android/signing.keystore
+            phone-tracker/android/signing.pass
+          key: apk-signing-v1
+
+      - name: Build release APK
+        working-directory: phone-tracker/android
+        run: gradle assembleRelease --no-daemon
+
+      - name: Verify signature & package
+        run: |
+          set -euo pipefail
+          APK=phone-tracker/android/app/build/outputs/apk/release/app-release.apk
+          test -f "$APK"
+          BT=$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)
+          "$ANDROID_HOME/build-tools/$BT/apksigner" verify --print-certs "$APK" | head -3
+          cp "$APK" GRGC-Phone-Tracker-v1.0.apk
+          ls -la GRGC-Phone-Tracker-v1.0.apk
+          echo "APK_FILE=GRGC-Phone-Tracker-v1.0.apk" >> "$GITHUB_ENV"
+
+      - name: Publish GitHub Release
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-v1.0
+          name: Android APK — Phone Tracker v1.0
+          files: ${{ env.APK_FILE }}
+          fail_on_unmatched_files: true
+          body: |
+            **GRGC Phone Tracker for Android** — install this APK on the phone you want to protect.
+
+            ### Install
+            1. Download `GRGC-Phone-Tracker-v1.0.apk` on your phone.
+            2. If asked, allow *Install unknown apps* for your browser/Files app.
+            3. Open the APK → Install → open **Phone Tracker**.
+            4. Sign in (or create your account), register the device, allow location.
+
+            The app is a thin shell around <https://gatewayrevivalglory.online/phone-tracker/>
+            so web-app updates apply automatically — no new APK needed.
