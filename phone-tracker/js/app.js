@@ -332,6 +332,8 @@
   }
 
   async function requestWakeLock() {
+    // Native Android shell: keep the screen awake (WebView bridge).
+    try { window.TrackerNative && window.TrackerNative.setKeepAwake(true); } catch {}
     try {
       if ("wakeLock" in navigator) {
         S.wakeLock = await navigator.wakeLock.request("screen");
@@ -522,6 +524,7 @@
     if (S.tickTimer) { clearInterval(S.tickTimer); S.tickTimer = null; }
     if (S.pollTimer) { clearInterval(S.pollTimer); S.pollTimer = null; }
     if (S.wakeLock) { try { S.wakeLock.release(); } catch {} S.wakeLock = null; }
+    try { window.TrackerNative && window.TrackerNative.setKeepAwake(false); } catch {}
     closeChannels();
     deactivateLock();
     $("#stolen-banner").hidden = true;
@@ -1109,6 +1112,15 @@
 
   /* ---- exports ---- */
   function download(filename, mime, content) {
+    // Android app: hand the file to the native Downloads bridge.
+    if (window.TrackerNative && window.TrackerNative.saveBase64File) {
+      try {
+        const b64 = btoa(unescape(encodeURIComponent(content)));
+        window.TrackerNative.saveBase64File(filename, b64);
+        toast("Saved: " + filename, "ok");
+        return;
+      } catch { /* fall through to browser download */ }
+    }
     const blob = new Blob([content], { type: mime });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);

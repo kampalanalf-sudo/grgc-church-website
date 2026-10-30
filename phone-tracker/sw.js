@@ -2,7 +2,7 @@
  * Caches the app shell and CDN libraries so the tracker still opens
  * with no/little network. Location data itself is never cached here.
  */
-const CACHE = "grgc-tracker-v1";
+const CACHE = "grgc-tracker-v2";
 
 const PRECACHE = [
   "./",
