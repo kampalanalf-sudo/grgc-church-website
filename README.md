@@ -43,3 +43,15 @@ cd /home/user/iuea && python3 -m http.server 8080
 
 ## Deploy
 Static site — host anywhere: GitHub Pages, Netlify, Vercel, cPanel, etc.
+Served live from GitHub Pages at <https://gatewayrevivalglory.online/> (custom domain).
+
+## Phone Tracker (private tool)
+`phone-tracker/` holds a separate personal anti-theft app
+(<https://gatewayrevivalglory.online/phone-tracker/>): sign in with your own
+account, run **Protect** mode on the phone (GPS + battery reporting, wake-lock,
+offline queue) and use the **Find** dashboard from any device — live map,
+history with CSV/GPX export, remote ring-alarm / vibrate / message / PIN-lock,
+and stolen mode. Backend is a dedicated Supabase project (*Phone Tracker*)
+with row-level security on every table.
+Config lives in `phone-tracker/js/config.js`. The church site itself is
+unaffected — the tracker is a self-contained subfolder.
