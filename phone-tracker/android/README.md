@@ -15,8 +15,10 @@ the shell itself changes.**
 ## Building
 CI builds it: the **Build Android APK** workflow runs on every push to `main`
 that touches `phone-tracker/android/**` (or manually via *Run workflow*).
-It assembles `app/build/outputs/apk/release/`, verifies the signature and
-publishes it on the **android-v1.0** GitHub Release.
+It assembles `app/build/outputs/apk/release/`, verifies the signature,
+checks the package really contains `classes.dex` + the binary manifest,
+prints the zip listing and sha256, and publishes the APK on the
+**android-v1.0** GitHub Release.
 
 To build locally you need the Android SDK + JDK 17:
 
