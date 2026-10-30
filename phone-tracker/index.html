@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1220" />
+  <meta name="description" content="GRGC Phone Tracker — locate, ring, lock and protect your phone from anywhere." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Phone Tracker — GRGC</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="./css/tracker.css" />
+</head>
+<body>
+  <div id="toast-host" aria-live="polite"></div>
+
+  <!-- ============ HEADER ============ -->
+  <header id="app-header" hidden>
+    <div class="brand">
+      <img src="./icons/icon.svg" alt="" width="28" height="28" />
+      <span>Phone Tracker</span>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab" data-view="tracker" role="tab">🛡️ Protect</button>
+      <button class="tab" data-view="dashboard" role="tab">📍 Find</button>
+      <button class="tab" data-view="help" role="tab">❓ Help</button>
+    </nav>
+    <div class="account">
+      <span id="header-email" class="header-email"></span>
+      <button id="btn-signout" class="btn btn-ghost btn-sm" title="Sign out">Sign out</button>
+    </div>
+  </header>
+
+  <div id="stolen-banner" hidden>
+    ⚠️ STOLEN MODE is active — tracking fast. <button id="btn-clear-stolen-banner" class="linklike">Turn off</button>
+  </div>
+
+  <main id="app-main">
+
+    <!-- ============ LOGIN ============ -->
+    <section id="view-login" class="view">
+      <div class="login-card card">
+        <div class="login-logo">
+          <img src="./icons/icon.svg" alt="" width="72" height="72" />
+        </div>
+        <h1>Phone Tracker</h1>
+        <p class="muted">Find your phone. Fast.<br/>Locate · Ring · Lock · Message</p>
+
+        <div class="seg" role="tablist">
+          <button id="seg-signin" class="seg-btn active" type="button">Sign in</button>
+          <button id="seg-signup" class="seg-btn" type="button">Create account</button>
+        </div>
+
+        <form id="auth-form" autocomplete="on">
+          <label class="field">
+            <span>Email</span>
+            <input id="auth-email" type="email" required autocomplete="email" placeholder="you@example.com" />
+          </label>
+          <label class="field">
+            <span>Password</span>
+            <input id="auth-password" type="password" required autocomplete="current-password"
+                   minlength="6" placeholder="••••••••" />
+          </label>
+          <p id="auth-error" class="form-error" hidden></p>
+          <button id="auth-submit" class="btn btn-primary btn-block" type="submit">Sign in</button>
+        </form>
+
+        <p class="muted tiny center">
+          Your data is private — protected by row-level security<br/>tied to your account only.
+        </p>
+        <p class="center"><a href="#help" class="linklike" id="link-help">How it works &amp; setup guide</a></p>
+      </div>
+    </section>
+
+    <!-- ============ TRACKER (runs on the phone) ============ -->
+    <section id="view-tracker" class="view" hidden>
+
+      <!-- No device registered yet -->
+      <div id="tracker-setup" class="card" hidden>
+        <h2>🛡️ Protect this phone</h2>
+        <p class="muted">Register this browser as a protected device. The tracker sends its location
+          to your private account, and lets you find or control it from any other device.</p>
+        <form id="device-form">
+          <label class="field">
+            <span>Device name</span>
+            <input id="dev-name" type="text" required maxlength="40" placeholder="My Phone" value="My Phone" />
+          </label>
+          <label class="field">
+            <span>Unlock PIN (4–6 digits) <em class="muted">— protects “Stop” &amp; the lock screen</em></span>
+            <input id="dev-pin" type="password" inputmode="numeric" pattern="[0-9]{4,6}"
+                   minlength="4" maxlength="6" placeholder="e.g. 2468" />
+          </label>
+          <label class="field">
+            <span>Message shown to whoever finds the phone</span>
+            <textarea id="dev-message" rows="2" maxlength="300">This phone is tracked. Return it to the owner for a reward.</textarea>
+          </label>
+          <div class="row-2">
+            <label class="field">
+              <span>Normal update every</span>
+              <select id="dev-interval">
+                <option value="30">30 seconds</option>
+                <option value="60" selected>1 minute</option>
+                <option value="120">2 minutes</option>
+                <option value="300">5 minutes</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>In stolen mode every</span>
+              <select id="dev-stolen-interval">
+                <option value="10">10 seconds</option>
+                <option value="15" selected>15 seconds</option>
+                <option value="30">30 seconds</option>
+              </select>
+            </label>
+          </div>
+          <button class="btn btn-primary btn-block" type="submit">Register &amp; start protection</button>
+        </form>
+      </div>
+
+      <!-- Existing devices: choose which one this browser is -->
+      <div id="tracker-bind" class="card" hidden>
+        <h2>Is this one of your devices?</h2>
+        <p class="muted">Pick which registered device this browser is, or register it as a new phone.</p>
+        <div id="bind-list" class="bind-list"></div>
+        <button id="btn-register-new" class="btn btn-outline btn-block">Register as a new device</button>
+      </div>
+
+      <!-- Active protection panel -->
+      <div id="tracker-active" class="card" hidden>
+        <div class="status-hero" id="status-hero">
+          <div class="status-icon" id="status-icon">🛡️</div>
+          <div>
+            <div class="status-title" id="status-title">Protected</div>
+            <div class="status-sub muted" id="status-sub"></div>
+          </div>
+        </div>
+
+        <div class="stat-grid" id="tracker-stats">
+          <div class="stat"><span class="stat-label">Last fix</span><span id="st-lastfix" class="stat-value">—</span></div>
+          <div class="stat"><span class="stat-label">Battery</span><span id="st-battery" class="stat-value">—</span></div>
+          <div class="stat"><span class="stat-label">Accuracy</span><span id="st-accuracy" class="stat-value">—</span></div>
+          <div class="stat"><span class="stat-label">Queued offline</span><span id="st-queued" class="stat-value">0</span></div>
+        </div>
+
+        <div class="btn-row">
+          <button id="btn-start" class="btn btn-primary btn-lg">▶︎ Start protection</button>
+          <button id="btn-stop" class="btn btn-danger btn-lg" hidden>⏹ Stop protection</button>
+        </div>
+        <div class="btn-row">
+          <button id="btn-test-alarm" class="btn btn-outline">🔊 Test alarm (3s)</button>
+          <button id="btn-settings" class="btn btn-outline">⚙️ Settings</button>
+        </div>
+
+        <div class="info-box">
+          <strong>Keep it running:</strong> install this app to your home screen
+          (browser menu → <em>Add to Home Screen</em>) and open it from there.
+          For fastest tracking leave the screen on while charging.
+          <button id="btn-forget" class="linklike">Unbind this browser from the device</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DASHBOARD (find my phone) ============ -->
+    <section id="view-dashboard" class="view" hidden>
+
+      <div class="card device-strip">
+        <h2>Your devices</h2>
+        <div id="device-cards" class="device-cards"></div>
+      </div>
+
+      <div id="dash-empty" class="card" hidden>
+        <p class="muted center">No device selected. Open the <strong>Protect</strong> tab on the phone you want to
+          track, sign in with this account and register it.</p>
+      </div>
+
+      <div id="dash-main" hidden>
+        <div class="card map-card">
+          <div id="map"></div>
+          <div class="map-actions">
+            <button id="btn-recenter" class="btn btn-sm btn-dark" title="Recenter">🎯 Recenter</button>
+            <button id="btn-refresh-history" class="btn btn-sm btn-dark" title="Reload history">🔄</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="dev-status-line">
+            <span id="dash-status-dot" class="dot"></span>
+            <span id="dash-status-text">—</span>
+          </div>
+          <div class="stat-grid">
+            <div class="stat"><span class="stat-label">Last seen</span><span id="d-lastseen" class="stat-value">—</span></div>
+            <div class="stat"><span class="stat-label">Battery</span><span id="d-battery" class="stat-value">—</span></div>
+            <div class="stat"><span class="stat-label">Speed</span><span id="d-speed" class="stat-value">—</span></div>
+            <div class="stat"><span class="stat-label">Accuracy</span><span id="d-accuracy" class="stat-value">—</span></div>
+          </div>
+          <div id="d-address" class="address muted"></div>
+          <div class="btn-row">
+            <a id="lnk-gmaps" class="btn btn-outline btn-sm" target="_blank" rel="noopener">🗺 Google Maps</a>
+            <a id="lnk-whatsapp" class="btn btn-outline btn-sm" target="_blank" rel="noopener">💬 WhatsApp</a>
+            <button id="btn-copy-coords" class="btn btn-outline btn-sm">📋 Copy coords</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Remote control</h3>
+          <p class="muted tiny">Commands reach the phone while its tracker is running. The phone must have
+            opened the Protect tab at least once and stay signed in.</p>
+          <div class="cmd-grid">
+            <button id="cmd-alarm"   class="btn btn-danger cmd">🚨<span>Ring alarm</span></button>
+            <button id="cmd-vibrate" class="btn btn-outline cmd">📳<span>Vibrate</span></button>
+            <button id="cmd-message" class="btn btn-outline cmd">✉️<span>Message</span></button>
+            <button id="cmd-lock"    class="btn btn-outline cmd">🔒<span>Lock screen</span></button>
+            <button id="cmd-unlock"  class="btn btn-outline cmd">🔓<span>Unlock</span></button>
+            <button id="cmd-locate"  class="btn btn-outline cmd">📍<span>Locate now</span></button>
+            <button id="cmd-stolen"  class="btn btn-warning cmd">⚠️<span id="cmd-stolen-label">Stolen mode</span></button>
+            <button id="cmd-resetpin" class="btn btn-outline cmd">🔑<span>Reset PIN</span></button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="hist-head">
+            <h3>History</h3>
+            <select id="hist-range" class="select-sm">
+              <option value="6">Last 6 h</option>
+              <option value="24" selected>Last 24 h</option>
+              <option value="168">Last 7 days</option>
+              <option value="720">Last 30 days</option>
+            </select>
+          </div>
+          <div id="hist-list" class="hist-list"></div>
+          <div class="btn-row">
+            <button id="btn-export-csv" class="btn btn-outline btn-sm">⬇ CSV</button>
+            <button id="btn-export-gpx" class="btn btn-outline btn-sm">⬇ GPX</button>
+            <button id="btn-clear-hist" class="btn btn-danger btn-sm">🗑 Clear history</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Device settings</h3>
+          <form id="dash-settings-form">
+            <label class="field"><span>Name</span><input id="set-name" type="text" maxlength="40" /></label>
+            <label class="field"><span>Finder message</span><textarea id="set-message" rows="2" maxlength="300"></textarea></label>
+            <div class="row-2">
+              <label class="field"><span>Normal interval (s)</span><input id="set-interval" type="number" min="15" max="3600" /></label>
+              <label class="field"><span>Stolen interval (s)</span><input id="set-stolen-interval" type="number" min="10" max="600" /></label>
+            </div>
+            <button class="btn btn-primary btn-block" type="submit">Save settings</button>
+          </form>
+          <button id="btn-delete-device" class="btn btn-danger btn-block mt">🗑 Delete device &amp; all its data</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HELP ============ -->
+    <section id="view-help" class="view" hidden>
+      <div class="card">
+        <h2>How it works</h2>
+        <ol class="help-list">
+          <li><strong>Create your account</strong> here (email + password). Only you can see your data.</li>
+          <li>On the phone you want to protect, open this app, sign in and press
+            <strong>Protect → Register &amp; start protection</strong>. Allow location access when asked.</li>
+          <li>Install it to the home screen (<em>Add to Home Screen</em>) so it keeps running like an app.</li>
+          <li>From any other device (computer, friend's phone), sign in to <strong>Find</strong> to see the
+            live map, ring the alarm, lock the screen, send a message or turn on <strong>stolen mode</strong>
+            (fast tracking + wake lock).</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h2>What you can do remotely</h2>
+        <ul class="help-list">
+          <li>🚨 <strong>Ring alarm</strong> — a loud siren for 30 s (also vibrates).</li>
+          <li>📍 <strong>Locate now</strong> — request an immediate GPS fix.</li>
+          <li>🔒 <strong>Lock screen</strong> — fullscreen lock with your PIN; unlock it yourself or remotely.</li>
+          <li>✉️ <strong>Message</strong> — show a fullscreen message to whoever has the phone.</li>
+          <li>⚠️ <strong>Stolen mode</strong> — fast updates, keeps the screen awake, shows your message.</li>
+          <li>📋 History with <strong>CSV / GPX export</strong>, Google Maps &amp; WhatsApp sharing.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Honest limitations</h2>
+        <ul class="help-list">
+          <li>This is a <strong>web app</strong>: browsers throttle background pages. Tracking is best while the
+            screen is on (the app requests a screen wake-lock in stolen mode). It cannot run fully invisibly
+            like a native anti-theft app.</li>
+          <li>The <strong>Protect tab must have been opened</strong> on the phone — if the thief (or you) fully
+            closes the browser, remote commands wait until it opens again.</li>
+          <li>iPhone: <strong>vibration and alarms are silenced</strong> when the ringer switch is off, and the
+            screen may sleep. Android gives the best results.</li>
+          <li>GPS is weakest indoors — the last known position may be metres off.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Security &amp; privacy</h2>
+        <ul class="help-list">
+          <li>Every row is protected by <strong>Postgres row-level security</strong> tied to your login —
+            nobody else (not even the public API key on this page) can read your locations.</li>
+          <li>The unlock PIN is stored as a salted hash. Use a strong Supabase password and consider
+            enabling MFA on your account in the Supabase dashboard.</li>
+          <li>Tips: keep the phone charged, share your live last-known location with family via WhatsApp
+            from the Find tab, and report the IMEI to your carrier and police.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ OVERLAYS ============ -->
+  <div id="msg-overlay" class="overlay" hidden>
+    <div class="overlay-card">
+      <div class="overlay-icon">✉️</div>
+      <h2 id="msg-overlay-title">Message for you</h2>
+      <p id="msg-overlay-body"></p>
+      <button id="msg-overlay-close" class="btn btn-primary">Close</button>
+    </div>
+  </div>
+
+  <div id="lock-overlay" class="overlay overlay-lock" hidden>
+    <div class="overlay-card">
+      <div class="overlay-icon">🔒</div>
+      <h2>This phone is locked</h2>
+      <p id="lock-overlay-msg" class="muted"></p>
+      <div id="pin-dots" class="pin-dots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="pin-pad" id="pin-pad">
+        <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+        <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+        <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+        <button data-k="clear" class="pin-2">Clear</button><button data-k="0">0</button>
+        <button data-k="del" class="pin-2">⌫</button>
+      </div>
+      <p id="pin-error" class="form-error" hidden>Wrong PIN</p>
+    </div>
+  </div>
+
+  <div id="modal-host" class="overlay" hidden>
+    <div class="overlay-card modal-card">
+      <h2 id="modal-title"></h2>
+      <p id="modal-body" class="muted" hidden></p>
+      <input id="modal-input" type="text" hidden />
+      <div id="modal-error" class="form-error" hidden></div>
+      <div class="btn-row">
+        <button id="modal-cancel" class="btn btn-outline">Cancel</button>
+        <button id="modal-ok" class="btn btn-primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="./js/config.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
